@@ -33,10 +33,12 @@ const UrlForm: React.FC = () => {
         data
       );
 
-      console.log('Response from server:', response.data);
+      //   console.log('Response from server:', response.data);
 
       // Dispatch the addUrl action to update the Redux store
       dispatch(addUrl(response.data)); // Dispatch the action
+
+      //   console.log('Dispatched action to Redux:', response.data);
 
       reset();
       setError(null);
