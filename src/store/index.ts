@@ -6,3 +6,5 @@ export const store = configureStore({
     urls: urlsReducer,
   },
 });
+
+export type RootState = ReturnType<typeof store.getState>;

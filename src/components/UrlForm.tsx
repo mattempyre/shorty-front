@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios, { AxiosError } from 'axios';
-import { Button, Input } from '@material-tailwind/react'; // Import Input from Material Tailwind
+import { Button, Input } from '@material-tailwind/react';
 import { handleAxiosError } from '../utilities/errorHandling';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { addUrl } from '../store/urlsSlice'; // Import your Redux action
 
 interface FormValues {
   longUrl: string;
@@ -17,31 +19,31 @@ const UrlForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty }, // Add isDirty from formState
+    formState: { errors, isDirty },
     reset,
   } = useForm<FormValues>();
 
-  const [error, setError] = useState<string | null>(null); // State for displaying errors
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch(); // Get the dispatch function from Redux
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      // Make a POST request to your backend API
       const response = await axios.post(
         'http://localhost:9000/api/url/create',
         data
       );
 
-      // Handle the response (you can update this part based on your needs)
       console.log('Response from server:', response.data);
 
-      // Reset the form after successful submission
+      // Dispatch the addUrl action to update the Redux store
+      dispatch(addUrl(response.data)); // Dispatch the action
+
       reset();
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (error) {
-      // Handle errors (e.g., display an error message)
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<ErrorResponse>;
-        setError(handleAxiosError(axiosError)); // Use the centralized error handling function
+        setError(handleAxiosError(axiosError));
       } else {
         setError('An error occurred. Please try again later.');
       }
@@ -75,7 +77,7 @@ const UrlForm: React.FC = () => {
             size="md"
             color="blue"
             error={!!errors.longUrl}
-            crossOrigin
+            crossOrigin={false}
           />
           {errors.longUrl && (
             <p className="text-red-500 text-sm">{errors.longUrl.message}</p>
@@ -94,7 +96,7 @@ const UrlForm: React.FC = () => {
             {...register('customShortUrl')}
             size="md"
             color="blue"
-            crossOrigin // Add color prop for input color
+            crossOrigin={false}
           />
         </div>
         <Button type="submit" color="blue" disabled={!isDirty}>

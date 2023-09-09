@@ -6,6 +6,7 @@ interface Url {
   shortUrl: string; // Use shortUrl as the unique identifier
   longUrl: string;
   clickCount: number;
+  redirectUrl: string; // Add the redirectUrl property
 }
 
 // Define the initial state with an empty array of URLs
@@ -48,10 +49,15 @@ const urlsSlice = createSlice({
         urlToUpdate.longUrl = newLongUrl;
       }
     },
+    // Add a new action to fetch URLs from the API and update the state
+    fetchUrls: (state, action: PayloadAction<Url[]>) => {
+      return action.payload;
+    },
   },
 });
 
-export const { addUrl, removeUrl, updateClickCount, updateLongUrl } =
+// Export your actions and reducer
+export const { addUrl, removeUrl, updateClickCount, updateLongUrl, fetchUrls } =
   urlsSlice.actions;
 
 export default urlsSlice.reducer;
