@@ -68,7 +68,7 @@ const UrlForm: React.FC = () => {
             {...register('longUrl', {
               required: 'Long URL is required',
               pattern: {
-                value: /^(https?:\/\/)?(.+\.)+.+\..+|(.+\.)+.+\..+$/,
+                value: /^(https?:\/\/)?(www\.)?[^.\s]+\.[a-zA-Z]{2,}$/,
                 message: 'Invalid URL format',
               },
             })}
