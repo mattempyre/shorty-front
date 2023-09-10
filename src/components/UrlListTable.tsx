@@ -9,6 +9,23 @@ const UrlListTable: React.FC = () => {
   const dispatch = useDispatch();
   const urls = useSelector((state: RootState) => state.urls);
 
+  const handleLinkClick = (shortUrl: string) => (event: React.MouseEvent) => {
+    event.preventDefault(); // Prevent the default behavior of the link
+
+    // Manually open the link in a new tab
+    window.open(`http://localhost:9000/${shortUrl}`, '_blank');
+
+    // Fetch data from the API and update the store
+    axios
+      .get('http://localhost:9000/api/url/all')
+      .then((response) => {
+        dispatch(fetchUrls(response.data));
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
   useEffect(() => {
     // Fetch data from the API and update the store
     axios
@@ -20,18 +37,6 @@ const UrlListTable: React.FC = () => {
         console.error('Error fetching data:', error);
       });
   }, [dispatch]);
-
-  const handleEditClick = (shortUrl: string, newLongUrl: string) => {
-    // Update the long URL for a URL by its shortUrl
-    axios
-      .put(`http://localhost:9000/api/url/${shortUrl}`, { newLongUrl })
-      .then(() => {
-        dispatch(updateLongUrl({ shortUrl, newLongUrl }));
-      })
-      .catch((error) => {
-        console.error('Error updating long URL:', error);
-      });
-  };
 
   const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', ''];
 
@@ -69,9 +74,10 @@ const UrlListTable: React.FC = () => {
               <tr key={shortUrl}>
                 <td className={classes}>
                   <a
-                    href={longUrl}
+                    href={`http://localhost:9000/${shortUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={handleLinkClick(shortUrl)} // Attach the click handler
                     className="text-blue-500 hover:underline cursor-pointer"
                   >
                     http://localhost:9000/{shortUrl}

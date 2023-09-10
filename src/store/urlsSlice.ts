@@ -50,7 +50,7 @@ const urlsSlice = createSlice({
       }
     },
     // Add a new action to fetch URLs from the API and update the state
-    fetchUrls: (state, action: PayloadAction<Url[]>) => {
+    fetchUrls: (_, action: PayloadAction<Url[]>) => {
       return action.payload;
     },
   },
