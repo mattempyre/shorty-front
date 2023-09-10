@@ -86,22 +86,18 @@ const UrlForm: React.FC = () => {
           )}
         </div>
         <div>
-          <label
-            htmlFor="customShortUrl"
-            className="block text-gray-600 font-semibold"
-          >
-            Custom Short URL (optional)
-          </label>
           <Input
+            label="
+            Custom back-half of the short URL (optional)"
             id="customShortUrl"
             type="text"
             {...register('customShortUrl')}
             size="md"
-            color="blue"
+            color="green"
             crossOrigin={false}
           />
         </div>
-        <Button type="submit" color="blue" disabled={!isDirty}>
+        <Button type="submit" ripple color="blue" disabled={!isDirty}>
           Create Short URL
         </Button>
       </form>
