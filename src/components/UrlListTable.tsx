@@ -1,43 +1,70 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { fetchUrls, updateLongUrl } from '../store/urlsSlice';
-import { Card, Typography, IconButton } from '@material-tailwind/react';
+import {
+  Card,
+  Typography,
+  IconButton,
+  Tooltip,
+} from '@material-tailwind/react';
 import axios from 'axios';
-import { PencilIcon } from '@heroicons/react/24/solid';
 
-const truncateString = (str, maxLen) => {
+import { MdCancel, MdCheckCircle, MdModeEdit } from 'react-icons/md';
+
+interface UrlData {
+  shortUrl: string;
+  longUrl: string;
+  clickCount: number;
+}
+
+const truncateString = (str: string, maxLen: number) => {
   if (str.length <= maxLen) return str;
   return str.substr(0, maxLen - 3) + '...';
+};
+
+const isValidURL = (url: string): boolean => {
+  // Regex pattern for URL validation with optional protocols and required TLD and domain
+  const urlRegex =
+    /^(?:(https?|ftp):\/\/)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d+)?(?:\/\S*)?$/i;
+
+  // Check if the URL matches the regex pattern
+  return urlRegex.test(url);
 };
 
 const UrlListTable: React.FC = () => {
   const dispatch = useDispatch();
   const urls = useSelector((state: RootState) => state.urls);
 
-  const handleLinkClick = (shortUrl: string) => (event: React.MouseEvent) => {
-    event.preventDefault(); // Prevent the default behavior of the link
+  const [originalUrls, setOriginalUrls] = useState<{ [key: string]: string }>(
+    {}
+  );
 
-    // Manually open the link in a new tab
-    window.open(`http://localhost:9000/${shortUrl}`, '_blank');
-
-    // Fetch data from the API and update the store
-    axios
-      .get('http://localhost:9000/api/url/all')
-      .then((response) => {
-        dispatch(fetchUrls(response.data));
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  };
+  const handleLinkClick =
+    (shortUrl: string) =>
+    (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      event.preventDefault();
+      window.open(`http://localhost:9000/${shortUrl}`, '_blank');
+      axios
+        .get('http://localhost:9000/api/url/all')
+        .then((response) => {
+          dispatch(fetchUrls(response.data));
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    };
 
   useEffect(() => {
-    // Fetch data from the API and update the store
     axios
       .get('http://localhost:9000/api/url/all')
       .then((response) => {
         dispatch(fetchUrls(response.data));
+        const originalUrlData: { [key: string]: string } = {};
+        response.data.forEach((urlData: UrlData) => {
+          originalUrlData[urlData.shortUrl] = urlData.longUrl;
+        });
+        setOriginalUrls(originalUrlData);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -52,30 +79,75 @@ const UrlListTable: React.FC = () => {
     setHoveredUrl(shortUrl);
   };
 
+  const handleLongUrlClick = (shortUrl: string) => {
+    // Set the clicked URL for editing
+    setEditingUrl(shortUrl);
+    setEditedUrl(originalUrls[shortUrl]);
+  };
+
+  const handleLongUrlBlur = (shortUrl: string) => {
+    // Check if the edited URL has a protocol, if not, add "http://"
+    let updatedEditedUrl = editedUrl;
+    if (!/^https?:\/\//i.test(updatedEditedUrl)) {
+      updatedEditedUrl = `http://${updatedEditedUrl}`;
+    }
+    setEditedUrl(updatedEditedUrl);
+
+    // If the edited URL is different from the original, update it
+    if (updatedEditedUrl !== originalUrls[shortUrl]) {
+      handleSaveClick(shortUrl);
+    } else {
+      // If it's the same, cancel editing
+      handleCancelClick();
+    }
+  };
+
   const handleEditClick = (shortUrl: string, longUrl: string) => {
-    // Enable editing for the clicked URL
     setEditingUrl(shortUrl);
     setEditedUrl(longUrl);
   };
 
   const handleSaveClick = (shortUrl: string) => {
-    // Send a PUT request to update the long URL
-    axios
-      .put(`http://localhost:9000/api/url/update`, {
-        shortUrl,
-        newLongUrl: editedUrl,
-      })
-      .then(() => {
-        // Update the Redux store with the new long URL
-        dispatch(updateLongUrl({ shortUrl, newLongUrl: editedUrl }));
-        setEditingUrl(null); // Disable editing
-      })
-      .catch((error) => {
-        console.error('Error updating long URL:', error);
-      });
+    let updatedEditedUrl = editedUrl;
+
+    // Check if the edited URL has a protocol, if not, add "http://"
+    if (!/^https?:\/\//i.test(updatedEditedUrl)) {
+      updatedEditedUrl = `http://${updatedEditedUrl}`;
+    }
+
+    if (
+      updatedEditedUrl !== originalUrls[shortUrl] &&
+      isValidURL(updatedEditedUrl)
+    ) {
+      axios
+        .put(`http://localhost:9000/api/url/update`, {
+          shortUrl,
+          newLongUrl: updatedEditedUrl, // Use the updated URL here
+        })
+        .then(() => {
+          dispatch(updateLongUrl({ shortUrl, newLongUrl: updatedEditedUrl }));
+          setEditingUrl(null);
+        })
+        .catch((error) => {
+          console.error('Error updating long URL:', error);
+        });
+    }
   };
 
-  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', ''];
+  const handleCancelClick = () => {
+    setEditedUrl(originalUrls[editingUrl || '']);
+    setEditingUrl(null);
+  };
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSaveClick(editingUrl || '');
+    } else if (event.key === 'Escape') {
+      handleCancelClick();
+    }
+  };
+
+  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits'];
 
   return (
     <Card className="h-full w-full">
@@ -107,10 +179,12 @@ const UrlListTable: React.FC = () => {
 
             const isEditing = editingUrl === shortUrl;
             const isHovering = hoveredUrl === shortUrl;
+            const isURLChanged = editedUrl !== originalUrls[shortUrl];
+            const isValid = isValidURL(editedUrl);
 
             return (
               <tr key={shortUrl}>
-                <td className={classes}>
+                <td className={classes} style={{ maxWidth: '200px' }}>
                   <a
                     href={`http://localhost:9000/${shortUrl}`}
                     target="_blank"
@@ -125,52 +199,80 @@ const UrlListTable: React.FC = () => {
                   className={`flex items-center ${classes} h-14`}
                   onMouseEnter={() => handleEditHover(shortUrl)}
                   onMouseLeave={() => handleEditHover(null)}
+                  onClick={() => handleLongUrlClick(shortUrl)} // Click to edit
+                  onBlur={() => handleLongUrlBlur(shortUrl)} // Save/cancel editing on blur
+                  style={{ cursor: 'pointer' }}
                 >
                   {isEditing ? (
                     <>
                       <input
                         type="text"
                         value={editedUrl}
-                        onChange={(e) => setEditedUrl(e.target.value)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          setEditedUrl(e.target.value)
+                        }
+                        onKeyDown={handleInputKeyDown}
                         style={{
-                          width: `${editedUrl.length * 9}px`, // Adjust the multiplier as needed
-                          minWidth: '30px', // Set a minimum width to avoid it becoming too small
-                          border: 'none', // Remove border
-                          outline: 'none', // Remove outline
+                          width: `${editedUrl.length * 9}px`,
+                          minWidth: '30px',
+                          border: 'none',
+                          outline: 'none',
+                          borderBottom: isValid ? 'none' : '2px solid red',
                         }}
-                        className="p-0 focus:ring-0"
+                        className="p-0 focus:ring-0 max-w-sm"
                         autoFocus
                       />
                       <IconButton
-                        color="blue"
-                        onClick={() => handleSaveClick(shortUrl)}
+                        variant="text"
+                        color="red"
+                        onClick={handleCancelClick}
                       >
-                        save
+                        <MdCancel className="w-6 h-6" />
                       </IconButton>
+
+                      <Tooltip
+                        color="red"
+                        placement="bottom"
+                        content="Can't save, Invalid URL format"
+                        isOpen={!isValid}
+                      >
+                        <span>
+                          <IconButton
+                            color="green"
+                            variant="text"
+                            onClick={() => handleSaveClick(shortUrl)}
+                            disabled={!isURLChanged || !isValid}
+                          >
+                            <MdCheckCircle className="w-6 h-6 text-green-700 hover:text-green-300" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
                     </>
                   ) : (
                     <>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal mr-2"
-                        title={longUrl} // Add a title attribute to display the full URL on hover
+                      <Tooltip
+                        content="Click to edit"
+                        color="blue"
+                        placement="top-start"
+                        animate={{
+                          mount: { scale: 1, y: 0 },
+                          unmount: { scale: 0, y: 25 },
+                        }}
                       >
-                        {truncateString(longUrl, 50)}
-                      </Typography>
-                      {isHovering && (
-                        <IconButton
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-normal mr-2"
+                          title={longUrl}
                           onClick={() => handleEditClick(shortUrl, longUrl)}
-                          size="sm"
-                          variant="text"
                         >
-                          <PencilIcon className="w-5 h-5" />
-                        </IconButton>
-                      )}
+                          {truncateString(longUrl, 30)}
+                        </Typography>
+                      </Tooltip>
                     </>
                   )}
                 </td>
-                <td className={classes}>
+                <td className={classes} style={{ maxWidth: '30px' }}>
                   <Typography
                     variant="small"
                     color="blue-gray"
