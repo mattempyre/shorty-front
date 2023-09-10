@@ -1,9 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { fetchUrls, updateLongUrl } from '../store/urlsSlice';
-import { Card, Typography, Button } from '@material-tailwind/react';
+import { Card, Typography, IconButton } from '@material-tailwind/react';
 import axios from 'axios';
+import { PencilIcon } from '@heroicons/react/24/solid';
+
+const truncateString = (str, maxLen) => {
+  if (str.length <= maxLen) return str;
+  return str.substr(0, maxLen - 3) + '...';
+};
 
 const UrlListTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -38,6 +44,37 @@ const UrlListTable: React.FC = () => {
       });
   }, [dispatch]);
 
+  const [editingUrl, setEditingUrl] = useState<string | null>(null);
+  const [editedUrl, setEditedUrl] = useState<string>('');
+  const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
+
+  const handleEditHover = (shortUrl: string | null) => {
+    setHoveredUrl(shortUrl);
+  };
+
+  const handleEditClick = (shortUrl: string, longUrl: string) => {
+    // Enable editing for the clicked URL
+    setEditingUrl(shortUrl);
+    setEditedUrl(longUrl);
+  };
+
+  const handleSaveClick = (shortUrl: string) => {
+    // Send a PUT request to update the long URL
+    axios
+      .put(`http://localhost:9000/api/url/update`, {
+        shortUrl,
+        newLongUrl: editedUrl,
+      })
+      .then(() => {
+        // Update the Redux store with the new long URL
+        dispatch(updateLongUrl({ shortUrl, newLongUrl: editedUrl }));
+        setEditingUrl(null); // Disable editing
+      })
+      .catch((error) => {
+        console.error('Error updating long URL:', error);
+      });
+  };
+
   const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', ''];
 
   return (
@@ -64,11 +101,12 @@ const UrlListTable: React.FC = () => {
         <tbody>
           {urls.map(({ shortUrl, longUrl, clickCount }, index) => {
             const isLast = index === urls.length - 1;
-            const classes = isLast ? 'p-4' : 'p-4 border-b border-blue-gray-50';
+            const classes = isLast
+              ? 'p-4'
+              : 'p-4 px-4 border-b border-blue-gray-50';
 
-            // Truncate longUrl to 15 characters
-            const truncatedLongUrl =
-              longUrl.length > 30 ? longUrl.slice(0, 30) + '...' : longUrl;
+            const isEditing = editingUrl === shortUrl;
+            const isHovering = hoveredUrl === shortUrl;
 
             return (
               <tr key={shortUrl}>
@@ -77,21 +115,60 @@ const UrlListTable: React.FC = () => {
                     href={`http://localhost:9000/${shortUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={handleLinkClick(shortUrl)} // Attach the click handler
+                    onClick={handleLinkClick(shortUrl)}
                     className="text-blue-500 hover:underline cursor-pointer"
                   >
-                    http://localhost:9000/{shortUrl}
+                    {truncateString(`http://localhost:9000/${shortUrl}`, 40)}
                   </a>
                 </td>
-                <td className={classes}>
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                    title={longUrl} // Add a title attribute to display the full URL on hover
-                  >
-                    {truncatedLongUrl}
-                  </Typography>
+                <td
+                  className={`flex items-center ${classes} h-14`}
+                  onMouseEnter={() => handleEditHover(shortUrl)}
+                  onMouseLeave={() => handleEditHover(null)}
+                >
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editedUrl}
+                        onChange={(e) => setEditedUrl(e.target.value)}
+                        style={{
+                          width: `${editedUrl.length * 9}px`, // Adjust the multiplier as needed
+                          minWidth: '30px', // Set a minimum width to avoid it becoming too small
+                          border: 'none', // Remove border
+                          outline: 'none', // Remove outline
+                        }}
+                        className="p-0 focus:ring-0"
+                        autoFocus
+                      />
+                      <IconButton
+                        color="blue"
+                        onClick={() => handleSaveClick(shortUrl)}
+                      >
+                        save
+                      </IconButton>
+                    </>
+                  ) : (
+                    <>
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal mr-2"
+                        title={longUrl} // Add a title attribute to display the full URL on hover
+                      >
+                        {truncateString(longUrl, 50)}
+                      </Typography>
+                      {isHovering && (
+                        <IconButton
+                          onClick={() => handleEditClick(shortUrl, longUrl)}
+                          size="sm"
+                          variant="text"
+                        >
+                          <PencilIcon className="w-5 h-5" />
+                        </IconButton>
+                      )}
+                    </>
+                  )}
                 </td>
                 <td className={classes}>
                   <Typography
@@ -101,23 +178,6 @@ const UrlListTable: React.FC = () => {
                   >
                     {clickCount}
                   </Typography>
-                </td>
-                <td className={classes}>
-                  <Button
-                    ripple
-                    color="blue"
-                    onClick={() => {
-                      const newLongUrl = prompt(
-                        'Enter the new Long URL:',
-                        longUrl
-                      );
-                      if (newLongUrl) {
-                        handleEditClick(shortUrl, newLongUrl);
-                      }
-                    }}
-                  >
-                    Edit
-                  </Button>
                 </td>
               </tr>
             );
