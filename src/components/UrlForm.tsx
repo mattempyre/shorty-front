@@ -1,21 +1,11 @@
-import React, { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import axios, { AxiosError } from 'axios';
-import { Button, Input } from '@material-tailwind/react';
-import { handleAxiosError } from '../utilities/errorHandling';
-import { useDispatch } from 'react-redux'; // Import useDispatch
-import { addUrl } from '../store/urlsSlice'; // Import your Redux action
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Button } from '@material-tailwind/react';
+import { FormValues } from '@/types/types';
+import isValidURL from '@/utilities/isValidUrl';
+import InputField from './Input/InputField';
+import useUrlManager from '@/hooks/useUrlManager';
 import { toast } from 'sonner';
-import { useEffect } from 'react';
-
-interface FormValues {
-  longUrl: string;
-  customShortUrl: string;
-}
-
-interface ErrorResponse {
-  error: string;
-}
 
 const UrlForm: React.FC = () => {
   const {
@@ -23,46 +13,16 @@ const UrlForm: React.FC = () => {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-  } = useForm<FormValues>(); // Access the toast function
+  } = useForm<FormValues>();
+  const { submitUrl, error } = useUrlManager();
 
-  const dispatch = useDispatch(); // Get the dispatch function from Redux
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    try {
-      const response = await axios.post(
-        'http://localhost:9000/api/url/create',
-        data
-      );
-
-      // Dispatch the addUrl action to update the Redux store
-      dispatch(addUrl(response.data)); // Dispatch the action
-
-      reset();
-      setError(null);
-
-      // Show a success toast
-      toast.success('Short URL created successfully');
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ErrorResponse>;
-        setError(handleAxiosError(axiosError));
-
-        // Show an error toast
-        toast.error('An error occurred. Please try again later.');
-      } else {
-        setError('An error occurred. Please try again later.');
-
-        // Show an error toast
-        toast.error('An error occurred. Please try again later.');
-      }
-    }
+  const onSubmit = async (data: FormValues) => {
+    await submitUrl(data);
+    reset();
   };
-
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (error) {
-      // Show an error toast when the error state is set
       toast.error(error);
     }
   }, [error]);
@@ -76,18 +36,16 @@ const UrlForm: React.FC = () => {
           </h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Input
+              <InputField
                 label="Enter a long URL"
                 id="longUrl"
                 type="text"
-                {...register('longUrl', {
+                register={register}
+                validation={{
                   required: 'Long URL is required',
-                  pattern: {
-                    value:
-                      /^(https?:\/\/)?(www\.)?[^.\s]+\.[a-zA-Z]{2,}(\S*)?$/,
-                    message: 'Invalid URL format',
-                  },
-                })}
+                  validate: (value: string) =>
+                    isValidURL(value) || 'Invalid URL format',
+                }}
                 size="md"
                 color="blue"
                 error={!!errors.longUrl}
@@ -98,11 +56,11 @@ const UrlForm: React.FC = () => {
               )}
             </div>
             <div>
-              <Input
+              <InputField
                 label="Custom back-half of the short URL (optional)"
                 id="customShortUrl"
                 type="text"
-                {...register('customShortUrl')}
+                register={register}
                 size="md"
                 color="green"
                 crossOrigin={false}
