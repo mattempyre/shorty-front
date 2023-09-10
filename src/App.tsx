@@ -7,7 +7,6 @@ function App() {
   return (
     <div className="App">
       <Toaster richColors />
-      <h1>URL Shortener</h1>
       <UrlShortenerForm />
       <UrlListTable />
     </div>

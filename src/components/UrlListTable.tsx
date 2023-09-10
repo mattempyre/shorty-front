@@ -15,8 +15,9 @@ import {
 } from '@material-tailwind/react';
 import axios from 'axios';
 import { MdCancel, MdCheckCircle, MdDelete } from 'react-icons/md';
-import { toast } from 'sonner'; // Import useToast
+import { toast } from 'sonner'; // Updated import
 import isValidURL from '@/utilities/isValidUrl';
+
 interface UrlData {
   shortUrl: string;
   longUrl: string;
@@ -36,11 +37,7 @@ const UrlListTable: React.FC = () => {
     {}
   );
 
-  const [deleteData, setDeleteData] = useState<{
-    shortUrl: string;
-    longUrl: string;
-    clickCount: number;
-  } | null>(null);
+  const [deleteData, setDeleteData] = useState<UrlData | null>(null);
 
   const handleLinkClick =
     (shortUrl: string) =>
@@ -71,12 +68,15 @@ const UrlListTable: React.FC = () => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
-  }, [dispatch]);
+  }, [dispatch, urls]);
 
   const [editingUrl, setEditingUrl] = useState<string | null>(null);
   const [editedUrl, setEditedUrl] = useState<string>('');
 
   const handleLongUrlClick = (shortUrl: string) => {
+    if (editingUrl === shortUrl) {
+      return;
+    }
     // Set the clicked URL for editing
     setEditingUrl(shortUrl);
     setEditedUrl(originalUrls[shortUrl]);
@@ -105,6 +105,7 @@ const UrlListTable: React.FC = () => {
   };
 
   // Access the toast function
+  // Updated usage
 
   const handleSaveClick = (shortUrl: string) => {
     let updatedEditedUrl = editedUrl;

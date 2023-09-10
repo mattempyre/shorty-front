@@ -65,47 +65,61 @@ const UrlForm: React.FC = () => {
       // Show an error toast when the error state is set
       toast.error(error);
     }
-  }, [error, toast]);
+  }, [error]);
 
   return (
     <div className="max-w-md mx-auto mt-5">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Input
-            label="Enter a long URL"
-            id="longUrl"
-            type="text"
-            {...register('longUrl', {
-              required: 'Long URL is required',
-              pattern: {
-                value: /^(https?:\/\/)?(www\.)?[^.\s]+\.[a-zA-Z]{2,}(\S*)?$/,
-                message: 'Invalid URL format',
-              },
-            })}
-            size="md"
-            color="blue"
-            error={!!errors.longUrl}
-            crossOrigin={false}
-          />
-          {errors.longUrl && (
-            <p className="text-red-500 text-sm">{errors.longUrl.message}</p>
-          )}
+      <div className="bg-gray-100 min-h-screen flex justify-center items-center">
+        <div className="bg-white p-8 rounded-lg shadow-md w-96">
+          <h1 className="text-2xl font-bold mb-6 text-center">
+            Shorten Your URL
+          </h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Input
+                label="Enter a long URL"
+                id="longUrl"
+                type="text"
+                {...register('longUrl', {
+                  required: 'Long URL is required',
+                  pattern: {
+                    value:
+                      /^(https?:\/\/)?(www\.)?[^.\s]+\.[a-zA-Z]{2,}(\S*)?$/,
+                    message: 'Invalid URL format',
+                  },
+                })}
+                size="md"
+                color="blue"
+                error={!!errors.longUrl}
+                crossOrigin={false}
+              />
+              {errors.longUrl && (
+                <p className="text-red-500 text-sm">{errors.longUrl.message}</p>
+              )}
+            </div>
+            <div>
+              <Input
+                label="Custom back-half of the short URL (optional)"
+                id="customShortUrl"
+                type="text"
+                {...register('customShortUrl')}
+                size="md"
+                color="green"
+                crossOrigin={false}
+              />
+            </div>
+            <Button
+              type="submit"
+              fullWidth
+              ripple
+              color="blue"
+              disabled={!isDirty}
+            >
+              Create Short URL
+            </Button>
+          </form>
         </div>
-        <div>
-          <Input
-            label="Custom back-half of the short URL (optional)"
-            id="customShortUrl"
-            type="text"
-            {...register('customShortUrl')}
-            size="md"
-            color="green"
-            crossOrigin={false}
-          />
-        </div>
-        <Button type="submit" ripple color="blue" disabled={!isDirty}>
-          Create Short URL
-        </Button>
-      </form>
+      </div>
     </div>
   );
 };
