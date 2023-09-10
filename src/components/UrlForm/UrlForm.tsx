@@ -29,7 +29,12 @@ const UrlForm: React.FC = () => {
 
   return (
     <div className="max-w-screen mx-auto">
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 min-h-screen min-w-screen flex justify-center items-center">
+      <div
+        className="bg-gradient-to-tr
+from-blue-400 
+to-cyan-500 
+via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center items-center"
+      >
         <div className="bg-white p-8 rounded-lg shadow-lg w-96">
           <h1 className="text-2xl font-bold mb-6 text-center">
             Shorten Your URL
