@@ -10,7 +10,7 @@ import {
 } from '@material-tailwind/react';
 import axios from 'axios';
 
-import { MdCancel, MdCheckCircle, MdModeEdit } from 'react-icons/md';
+import { MdCancel, MdCheckCircle } from 'react-icons/md';
 
 interface UrlData {
   shortUrl: string;
@@ -158,6 +158,7 @@ const UrlListTable: React.FC = () => {
               <th
                 key={head}
                 className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                style={{ fontSize: '14px' }}
               >
                 <Typography
                   variant="small"
@@ -178,7 +179,6 @@ const UrlListTable: React.FC = () => {
               : 'p-4 px-4 border-b border-blue-gray-50';
 
             const isEditing = editingUrl === shortUrl;
-            const isHovering = hoveredUrl === shortUrl;
             const isURLChanged = editedUrl !== originalUrls[shortUrl];
             const isValid = isValidURL(editedUrl);
 
@@ -196,12 +196,12 @@ const UrlListTable: React.FC = () => {
                   </a>
                 </td>
                 <td
-                  className={`flex items-center ${classes} h-14`}
+                  className={`flex items-center ${classes} h-14 long-url-column`} // Apply a CSS class
                   onMouseEnter={() => handleEditHover(shortUrl)}
                   onMouseLeave={() => handleEditHover(null)}
-                  onClick={() => handleLongUrlClick(shortUrl)} // Click to edit
-                  onBlur={() => handleLongUrlBlur(shortUrl)} // Save/cancel editing on blur
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleLongUrlClick(shortUrl)}
+                  onBlur={() => handleLongUrlBlur(shortUrl)}
+                  style={{ cursor: 'pointer', width: '400px' }} // Set a fixed width
                 >
                   {isEditing ? (
                     <>
@@ -218,6 +218,7 @@ const UrlListTable: React.FC = () => {
                           border: 'none',
                           outline: 'none',
                           borderBottom: isValid ? 'none' : '2px solid red',
+                          fontSize: '14px',
                         }}
                         className="p-0 focus:ring-0 max-w-sm"
                         autoFocus
@@ -265,6 +266,7 @@ const UrlListTable: React.FC = () => {
                           className="font-normal mr-2"
                           title={longUrl}
                           onClick={() => handleEditClick(shortUrl, longUrl)}
+                          style={{ fontSize: '14px' }}
                         >
                           {truncateString(longUrl, 30)}
                         </Typography>
