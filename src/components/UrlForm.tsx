@@ -5,6 +5,8 @@ import { Button, Input } from '@material-tailwind/react';
 import { handleAxiosError } from '../utilities/errorHandling';
 import { useDispatch } from 'react-redux'; // Import useDispatch
 import { addUrl } from '../store/urlsSlice'; // Import your Redux action
+import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 interface FormValues {
   longUrl: string;
@@ -21,9 +23,8 @@ const UrlForm: React.FC = () => {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-  } = useForm<FormValues>();
+  } = useForm<FormValues>(); // Access the toast function
 
-  const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch(); // Get the dispatch function from Redux
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -33,37 +34,42 @@ const UrlForm: React.FC = () => {
         data
       );
 
-      //   console.log('Response from server:', response.data);
-
       // Dispatch the addUrl action to update the Redux store
       dispatch(addUrl(response.data)); // Dispatch the action
 
-      //   console.log('Dispatched action to Redux:', response.data);
-
       reset();
       setError(null);
+
+      // Show a success toast
+      toast.success('Short URL created successfully');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<ErrorResponse>;
         setError(handleAxiosError(axiosError));
+
+        // Show an error toast
+        toast.error('An error occurred. Please try again later.');
       } else {
         setError('An error occurred. Please try again later.');
+
+        // Show an error toast
+        toast.error('An error occurred. Please try again later.');
       }
-      console.error('Error:', error);
     }
   };
+
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (error) {
+      // Show an error toast when the error state is set
+      toast.error(error);
+    }
+  }, [error, toast]);
 
   return (
     <div className="max-w-md mx-auto mt-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            {error}
-          </div>
-        )}
         <div>
           <Input
             label="Enter a long URL"
@@ -87,8 +93,7 @@ const UrlForm: React.FC = () => {
         </div>
         <div>
           <Input
-            label="
-            Custom back-half of the short URL (optional)"
+            label="Custom back-half of the short URL (optional)"
             id="customShortUrl"
             type="text"
             {...register('customShortUrl')}

@@ -12,11 +12,11 @@ import {
   DialogFooter,
   Button,
   DialogHeader,
-} from '@material-tailwind/react'; // Import Modal components
+} from '@material-tailwind/react';
 import axios from 'axios';
-
 import { MdCancel, MdCheckCircle, MdDelete } from 'react-icons/md';
-
+import { toast } from 'sonner'; // Import useToast
+import isValidURL from '@/utilities/isValidUrl';
 interface UrlData {
   shortUrl: string;
   longUrl: string;
@@ -25,16 +25,7 @@ interface UrlData {
 
 const truncateString = (str: string, maxLen: number) => {
   if (str.length <= maxLen) return str;
-  return str.substr(0, maxLen - 3) + '...';
-};
-
-const isValidURL = (url: string): boolean => {
-  // Regex pattern for URL validation with optional protocols and required TLD and domain
-  const urlRegex =
-    /^(?:(https?|ftp):\/\/)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d+)?(?:\/\S*)?$/i;
-
-  // Check if the URL matches the regex pattern
-  return urlRegex.test(url);
+  return str.substring(0, maxLen - 3) + '...';
 };
 
 const UrlListTable: React.FC = () => {
@@ -84,11 +75,6 @@ const UrlListTable: React.FC = () => {
 
   const [editingUrl, setEditingUrl] = useState<string | null>(null);
   const [editedUrl, setEditedUrl] = useState<string>('');
-  const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
-
-  const handleEditHover = (shortUrl: string | null) => {
-    setHoveredUrl(shortUrl);
-  };
 
   const handleLongUrlClick = (shortUrl: string) => {
     // Set the clicked URL for editing
@@ -118,6 +104,8 @@ const UrlListTable: React.FC = () => {
     setEditedUrl(longUrl);
   };
 
+  // Access the toast function
+
   const handleSaveClick = (shortUrl: string) => {
     let updatedEditedUrl = editedUrl;
 
@@ -138,10 +126,19 @@ const UrlListTable: React.FC = () => {
         .then(() => {
           dispatch(updateLongUrl({ shortUrl, newLongUrl: updatedEditedUrl }));
           setEditingUrl(null);
+
+          // Show a success toast
+          toast.success('Long URL updated successfully');
         })
         .catch((error) => {
           console.error('Error updating long URL:', error);
+
+          // Show an error toast
+          toast.error('An error occurred while updating the long URL.');
         });
+    } else {
+      // Show an error toast if the URL is invalid
+      toast.error('Invalid URL format or no changes made.');
     }
   };
 
@@ -196,10 +193,16 @@ const UrlListTable: React.FC = () => {
               console.error('Error fetching data:', error);
             });
           closeDeleteModal(); // Close the modal after successful deletion
+
+          // Show a success toast
+          toast.success('Short URL deleted successfully');
         })
         .catch((error) => {
           console.error('Error deleting URL:', error);
           closeDeleteModal(); // Close the modal in case of an error
+
+          // Show an error toast
+          toast.error('An error occurred while deleting the short URL.');
         });
     }
   };
@@ -254,8 +257,6 @@ const UrlListTable: React.FC = () => {
                 </td>
                 <td
                   className={`flex items-center ${classes} h-14 long-url-column`} // Apply a CSS class
-                  onMouseEnter={() => handleEditHover(shortUrl)}
-                  onMouseLeave={() => handleEditHover(null)}
                   onClick={() => handleLongUrlClick(shortUrl)}
                   onBlur={() => handleLongUrlBlur(shortUrl)}
                   style={{ cursor: 'pointer', width: '400px' }} // Set a fixed width
@@ -346,7 +347,7 @@ const UrlListTable: React.FC = () => {
                     variant="text"
                     onClick={() => openDeleteModal(shortUrl)} // Open the delete modal
                   >
-                    <MdDelete className="w-6 h-6" />
+                    <MdDelete className="w-6 h-6 text-gray-400 hover:text-red-700 transition duration-150 ease-out hover:ease-in" />
                   </IconButton>
                 </td>
               </tr>
