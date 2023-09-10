@@ -33,7 +33,7 @@ const UrlListTable: React.FC = () => {
       });
   };
 
-  const TABLE_HEAD = ['Short URL', 'Long URL', 'Click Count', 'Edit'];
+  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', ''];
 
   return (
     <Card className="h-full w-full">
@@ -61,6 +61,10 @@ const UrlListTable: React.FC = () => {
             const isLast = index === urls.length - 1;
             const classes = isLast ? 'p-4' : 'p-4 border-b border-blue-gray-50';
 
+            // Truncate longUrl to 15 characters
+            const truncatedLongUrl =
+              longUrl.length > 30 ? longUrl.slice(0, 30) + '...' : longUrl;
+
             return (
               <tr key={shortUrl}>
                 <td className={classes}>
@@ -70,7 +74,7 @@ const UrlListTable: React.FC = () => {
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:underline cursor-pointer"
                   >
-                    {shortUrl}
+                    http://localhost:9000/{shortUrl}
                   </a>
                 </td>
                 <td className={classes}>
@@ -78,8 +82,9 @@ const UrlListTable: React.FC = () => {
                     variant="small"
                     color="blue-gray"
                     className="font-normal"
+                    title={longUrl} // Add a title attribute to display the full URL on hover
                   >
-                    {longUrl}
+                    {truncatedLongUrl}
                   </Typography>
                 </td>
                 <td className={classes}>
@@ -93,6 +98,7 @@ const UrlListTable: React.FC = () => {
                 </td>
                 <td className={classes}>
                   <Button
+                    ripple
                     color="blue"
                     onClick={() => {
                       const newLongUrl = prompt(
