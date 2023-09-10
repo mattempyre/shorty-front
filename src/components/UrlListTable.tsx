@@ -7,10 +7,15 @@ import {
   Typography,
   IconButton,
   Tooltip,
-} from '@material-tailwind/react';
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  Button,
+  DialogHeader,
+} from '@material-tailwind/react'; // Import Modal components
 import axios from 'axios';
 
-import { MdCancel, MdCheckCircle } from 'react-icons/md';
+import { MdCancel, MdCheckCircle, MdDelete } from 'react-icons/md';
 
 interface UrlData {
   shortUrl: string;
@@ -39,6 +44,12 @@ const UrlListTable: React.FC = () => {
   const [originalUrls, setOriginalUrls] = useState<{ [key: string]: string }>(
     {}
   );
+
+  const [deleteData, setDeleteData] = useState<{
+    shortUrl: string;
+    longUrl: string;
+    clickCount: number;
+  } | null>(null);
 
   const handleLinkClick =
     (shortUrl: string) =>
@@ -147,7 +158,53 @@ const UrlListTable: React.FC = () => {
     }
   };
 
-  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits'];
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete modal
+  const [urlToDelete, setUrlToDelete] = useState<string>(''); // State to store the URL to delete
+
+  // Function to open the delete modal
+  const openDeleteModal = (shortUrl: string) => {
+    setShowDeleteModal(true);
+    setUrlToDelete(shortUrl);
+    // Find the delete data for the specific shortUrl
+    const dataToDelete = urls.find((url) => url.shortUrl === shortUrl);
+    if (dataToDelete) {
+      setDeleteData(dataToDelete);
+    }
+  };
+
+  // Function to close the delete modal
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setUrlToDelete('');
+    setDeleteData(null);
+  };
+
+  // Function to handle the delete action
+  const handleDeleteClick = () => {
+    if (deleteData) {
+      // Perform the delete action here
+      axios
+        .delete(`http://localhost:9000/api/url/delete/${urlToDelete}`)
+        .then(() => {
+          // Refresh the URL list after deletion
+          axios
+            .get('http://localhost:9000/api/url/all')
+            .then((response) => {
+              dispatch(fetchUrls(response.data));
+            })
+            .catch((error) => {
+              console.error('Error fetching data:', error);
+            });
+          closeDeleteModal(); // Close the modal after successful deletion
+        })
+        .catch((error) => {
+          console.error('Error deleting URL:', error);
+          closeDeleteModal(); // Close the modal in case of an error
+        });
+    }
+  };
+
+  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', 'Actions']; // Add 'Actions' to table head
 
   return (
     <Card className="h-full w-full">
@@ -283,11 +340,84 @@ const UrlListTable: React.FC = () => {
                     {clickCount}
                   </Typography>
                 </td>
+                <td className={classes}>
+                  <IconButton
+                    color="red"
+                    variant="text"
+                    onClick={() => openDeleteModal(shortUrl)} // Open the delete modal
+                  >
+                    <MdDelete className="w-6 h-6" />
+                  </IconButton>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      <Dialog
+        size="sm"
+        open={showDeleteModal}
+        handler={closeDeleteModal}
+        animate={{
+          mount: { scale: 1, y: 0 },
+          unmount: { scale: 0.9, y: -100 },
+        }}
+      >
+        <DialogHeader>Delete Short URL</DialogHeader>
+        {deleteData && (
+          <DialogBody>
+            <Typography
+              className="font-normal"
+              variant="paragraph"
+              color="blue-gray"
+            >
+              Are you sure you want to delete{' '}
+              <a
+                className="font-bold text-slate-500 hover:underline"
+                href={`http://localhost:9000/${deleteData.shortUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                http://localhost:9000/{deleteData.shortUrl}
+              </a>
+              ? It currently links to{' '}
+              <a
+                className="font-bold text-slate-500 hover:underline"
+                href={deleteData.longUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {deleteData.longUrl}
+              </a>{' '}
+              and has been visited{' '}
+              <span className="text-red-500 font-bold">
+                {deleteData.clickCount}
+              </span>{' '}
+              {deleteData.clickCount === 1 ? 'time' : 'times'}.
+            </Typography>
+          </DialogBody>
+        )}
+        <DialogFooter>
+          <div className="w-full text-right">
+            <Button
+              variant="outlined"
+              onClick={() => closeDeleteModal()}
+              className="mr-3"
+            >
+              Cancel
+            </Button>
+            <Button
+              color="red"
+              variant="gradient"
+              ripple
+              className="mr-1"
+              onClick={() => handleDeleteClick()}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogFooter>
+      </Dialog>
     </Card>
   );
 };
