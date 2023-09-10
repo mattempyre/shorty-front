@@ -379,7 +379,7 @@ const UrlListTable: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                http://localhost:9000/{deleteData.shortUrl}
+                http://localhost:9000/{truncateString(deleteData.shortUrl, 30)}
               </a>
               ? It currently links to{' '}
               <a
@@ -388,7 +388,7 @@ const UrlListTable: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {deleteData.longUrl}
+                {truncateString(deleteData.longUrl, 40)}
               </a>{' '}
               and has been visited{' '}
               <span className="text-red-500 font-bold">
