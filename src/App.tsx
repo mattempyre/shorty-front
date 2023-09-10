@@ -1,5 +1,5 @@
-import { StickyNavbar } from './components/Nav';
-import UrlShortenerForm from './components/UrlForm';
+import { StickyNavbar } from './components/Nav/Nav';
+import UrlShortenerForm from './components/UrlForm/UrlForm';
 import UrlListTable from './components/UrlListTable';
 import { Toaster } from 'sonner';
 

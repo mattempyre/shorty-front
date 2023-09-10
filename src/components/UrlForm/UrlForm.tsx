@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@material-tailwind/react';
 import { FormValues } from '@/types/types';
 import isValidURL from '@/utilities/isValidUrl';
-import InputField from './Input/InputField';
+import InputField from '../Input/InputField';
 import useUrlManager from '@/hooks/useUrlManager';
 import { toast } from 'sonner';
 
