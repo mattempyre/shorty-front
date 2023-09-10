@@ -1,15 +1,16 @@
-import './App.css';
+import { StickyNavbar } from './components/Nav';
 import UrlShortenerForm from './components/UrlForm';
 import UrlListTable from './components/UrlListTable';
 import { Toaster } from 'sonner';
 
 function App() {
   return (
-    <div className="App">
+    <main className="relative">
+      <StickyNavbar />
       <Toaster richColors />
       <UrlShortenerForm />
       <UrlListTable />
-    </div>
+    </main>
   );
 }
 

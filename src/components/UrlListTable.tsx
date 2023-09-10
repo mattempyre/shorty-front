@@ -208,22 +208,26 @@ const UrlListTable: React.FC = () => {
     }
   };
 
-  const TABLE_HEAD = ['Short URL', 'Long URL', 'Link Visits', 'Actions']; // Add 'Actions' to table head
+  const TABLE_HEAD = ['Short URL', 'Long URL', 'Visits', 'Actions']; // Add 'Actions' to table head
 
   return (
-    <Card className="h-full w-full">
-      <table className="w-full min-w-max table-auto text-left">
+    <Card className="h-full w-full items-center bg-gray-100 rounded-none">
+      <table
+        id="links"
+        className="w-full min-w-max table-auto text-left max-w-screen-lg shadow-lg -mt-16
+       mb-10"
+      >
         <thead>
           <tr>
             {TABLE_HEAD.map((head) => (
               <th
                 key={head}
-                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                className="border-b border-blue-gray-100 bg-blue-gray-800 p-4"
                 style={{ fontSize: '14px' }}
               >
                 <Typography
-                  variant="small"
-                  color="blue-gray"
+                  variant="h4"
+                  color="white"
                   className="font-normal leading-none opacity-70"
                 >
                   {head}
@@ -232,12 +236,10 @@ const UrlListTable: React.FC = () => {
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white">
           {urls.map(({ shortUrl, longUrl, clickCount }, index) => {
             const isLast = index === urls.length - 1;
-            const classes = isLast
-              ? 'p-4'
-              : 'p-4 px-4 border-b border-blue-gray-50';
+            const classes = isLast ? 'p-4' : 'p-4 border-b border-blue-gray-50';
 
             const isEditing = editingUrl === shortUrl;
             const isURLChanged = editedUrl !== originalUrls[shortUrl];
@@ -245,19 +247,19 @@ const UrlListTable: React.FC = () => {
 
             return (
               <tr key={shortUrl}>
-                <td className={classes} style={{ maxWidth: '200px' }}>
+                <td className={classes} style={{ maxWidth: '400px' }}>
                   <a
                     href={`http://localhost:9000/${shortUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleLinkClick(shortUrl)}
-                    className="text-blue-500 hover:underline cursor-pointer"
+                    className="text-blue-500 text-sm hover:underline cursor-pointer"
                   >
                     {truncateString(`http://localhost:9000/${shortUrl}`, 40)}
                   </a>
                 </td>
                 <td
-                  className={`flex items-center ${classes} h-14 long-url-column`} // Apply a CSS class
+                  className={`flex items-center ${classes} h-20 long-url-column`} // Apply a CSS class
                   onClick={() => handleLongUrlClick(shortUrl)}
                   onBlur={() => handleLongUrlBlur(shortUrl)}
                   style={{ cursor: 'pointer', width: '400px' }} // Set a fixed width
@@ -277,9 +279,8 @@ const UrlListTable: React.FC = () => {
                           border: 'none',
                           outline: 'none',
                           borderBottom: isValid ? 'none' : '2px solid red',
-                          fontSize: '14px',
                         }}
-                        className="p-0 focus:ring-0 max-w-sm"
+                        className="p-0 focus:ring-0 max-w-sm text-sm"
                         autoFocus
                       />
                       <IconButton
@@ -310,26 +311,27 @@ const UrlListTable: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Tooltip
-                        content="Click to edit"
-                        color="blue"
-                        placement="top-start"
-                        animate={{
-                          mount: { scale: 1, y: 0 },
-                          unmount: { scale: 0, y: 25 },
-                        }}
-                      >
-                        <Typography
-                          variant="small"
-                          color="blue-gray"
-                          className="font-normal mr-2"
-                          title={longUrl}
-                          onClick={() => handleEditClick(shortUrl, longUrl)}
-                          style={{ fontSize: '14px' }}
+                      <div className="">
+                        <Tooltip
+                          content="Click to edit"
+                          color="blue"
+                          placement="top-start"
+                          animate={{
+                            mount: { scale: 1, y: 0 },
+                            unmount: { scale: 0, y: 25 },
+                          }}
                         >
-                          {truncateString(longUrl, 30)}
-                        </Typography>
-                      </Tooltip>
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="font-normal mr-2 text-sm pt-4'"
+                            title={longUrl}
+                            onClick={() => handleEditClick(shortUrl, longUrl)}
+                          >
+                            {truncateString(longUrl, 30)}
+                          </Typography>
+                        </Tooltip>
+                      </div>
                     </>
                   )}
                 </td>
@@ -337,12 +339,12 @@ const UrlListTable: React.FC = () => {
                   <Typography
                     variant="small"
                     color="blue-gray"
-                    className="font-normal"
+                    className="font-normal text-center"
                   >
                     {clickCount}
                   </Typography>
                 </td>
-                <td className={classes}>
+                <td className={classes} style={{ textAlign: 'center' }}>
                   <IconButton
                     color="red"
                     variant="text"

@@ -68,9 +68,9 @@ const UrlForm: React.FC = () => {
   }, [error]);
 
   return (
-    <div className="max-w-md mx-auto mt-5">
-      <div className="bg-gray-100 min-h-screen flex justify-center items-center">
-        <div className="bg-white p-8 rounded-lg shadow-md w-96">
+    <div className="max-w-screen mx-auto">
+      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 min-h-screen min-w-screen flex justify-center items-center">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
           <h1 className="text-2xl font-bold mb-6 text-center">
             Shorten Your URL
           </h1>
@@ -112,7 +112,7 @@ const UrlForm: React.FC = () => {
               type="submit"
               fullWidth
               ripple
-              color="blue"
+              color="green"
               disabled={!isDirty}
             >
               Create Short URL
