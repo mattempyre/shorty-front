@@ -11,8 +11,6 @@ For the back-end code and additional details, visit the [Shorty Backend Reposito
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
-- [Testing](#testing)
-- [Back-End Repository](#back-end-repository)
 
 ## Introduction
 
@@ -145,7 +143,7 @@ To set up and run a Redis server locally with Docker, follow these steps:
    You should receive a "PONG" response, indicating that Redis is up and running.
 
 
-#Backend
+## Backend
 
 ## Back-End (Shorty Backend)
 
