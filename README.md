@@ -63,6 +63,87 @@ Before you begin, ensure you have the following prerequisites installed:
    npm install
    ```
 
+#### Run a Redis Server in Docker
+
+To set up and run a Redis server locally with Docker, follow these steps:
+
+1. **Install Docker:** If you haven't already, download and install Docker for your specific operating system. You can find the installation instructions for various platforms on the [Docker website](https://docs.docker.com/get-docker/).
+
+2. **Open a Terminal (Command Prompt):** Open a terminal or command prompt on your local machine.
+
+3. **Pull the Redis Docker Image:**
+
+   Run the following command to pull the official Redis Docker image from Docker Hub:
+
+   ```bash
+   docker pull redis
+   ```
+
+   This command will download the latest Redis image to your local machine.
+
+4. **Run a Redis Container:**
+
+   Once the Redis image is downloaded, you can start a Redis container by running the following command:
+
+   ```bash
+   docker run -d -p 6379:6379 --name redis-server redis
+   ```
+
+   - `-d`: This flag runs the container in detached mode, which means it runs in the background.
+   - `-p 6379:6379`: This flag maps port 6379 inside the container to port 6379 on your local machine. This is the default Redis port.
+   - `--name redis-server`: This assigns the name "redis-server" to the running container.
+   - `redis`: This is the name of the Docker image we pulled earlier.
+
+5. **Verify Redis Container Status:**
+
+   You can check if the Redis container is running by executing:
+
+   ```bash
+   docker ps
+   ```
+
+   This command lists all the running containers. You should see the "redis-server" container in the list.
+
+6. **Access the Redis Server:**
+
+   You can access the Redis server using a Redis client or by running commands inside the container. To access it using a Redis client, you can install the Redis CLI tool on your local machine.
+
+   - **Install Redis CLI on Linux/Mac:**
+
+     ```bash
+     sudo apt-get install redis-tools   # On Ubuntu/Debian
+     ```
+
+     -OR-
+
+     ```bash
+     brew install redis                # On macOS with Homebrew
+     ```
+
+   - **Install Redis CLI on Windows:**
+
+     You can download the Windows version of the Redis CLI from the [official GitHub repository](https://github.com/microsoftarchive/redis/releases).
+
+7. **Connect to the Redis Server:**
+
+   You can connect to the Redis server using the Redis CLI with the following command:
+
+   ```bash
+   redis-cli
+   ```
+
+   This should open a Redis command prompt, allowing you to interact with the Redis server.
+
+8. **Test Redis:**
+
+   To test if Redis is running correctly, you can run a simple Redis command, such as:
+
+   ```bash
+   ping
+   ```
+
+   You should receive a "PONG" response, indicating that Redis is up and running.
+
 #### Back-End (Shorty Backend)
 
 1. Clone the Shorty back-end repository to your local machine:
