@@ -144,7 +144,8 @@ To set up and run a Redis server locally with Docker, follow these steps:
 
    You should receive a "PONG" response, indicating that Redis is up and running.
 
-#back-end-repository
+
+#Backend
 
 ## Back-End (Shorty Backend)
 
