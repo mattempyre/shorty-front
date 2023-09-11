@@ -291,23 +291,16 @@ const UrlListTable: React.FC = () => {
                         <MdCancel className="w-6 h-6" />
                       </IconButton>
 
-                      <Tooltip
-                        color="red"
-                        placement="bottom"
-                        content="Can't save, Invalid URL format"
-                        isOpen={!isValid}
-                      >
-                        <span>
-                          <IconButton
-                            color="green"
-                            variant="text"
-                            onClick={() => handleSaveClick(shortUrl)}
-                            disabled={!isURLChanged || !isValid}
-                          >
-                            <MdCheckCircle className="w-6 h-6 text-green-700 hover:text-green-300" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
+                      <span>
+                        <IconButton
+                          color="green"
+                          variant="text"
+                          onClick={() => handleSaveClick(shortUrl)}
+                          disabled={!isURLChanged || !isValid}
+                        >
+                          <MdCheckCircle className="w-6 h-6 text-green-700 hover:text-green-300" />
+                        </IconButton>
+                      </span>
                     </>
                   ) : (
                     <>
