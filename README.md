@@ -92,7 +92,7 @@ To use Shorty, follow these steps:
 1. Start the back-end server (Shorty Backend).
 
    ```shell
-   java -jar target/shorty-backend.jar
+   mvn spring-boot:run
    ```
 
    The back-end server should now be running on `http://localhost:9000`.
@@ -100,7 +100,7 @@ To use Shorty, follow these steps:
 2. Start the front-end development server (Shorty Frontend):
 
    ```shell
-   npm start
+   npm run dev
    ```
 
 3. Open your web browser and visit `http://localhost:5173/` to access the front-end application.
