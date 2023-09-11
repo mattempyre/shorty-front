@@ -2,6 +2,8 @@
 
 Shorty is a simple and user-friendly web application for shortening long URLs and managing them effectively.
 
+For the back-end code and additional details, visit the [Shorty Backend Repository](https://github.com/mattempyre/shorty-back).
+
 ## Table of Contents
 
 - [Introduction](#introduction)
