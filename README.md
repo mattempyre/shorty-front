@@ -95,7 +95,7 @@ To use Shorty, follow these steps:
    java -jar target/shorty-backend.jar
    ```
 
-   The back-end server should now be running on `http://localhost:8080`.
+   The back-end server should now be running on `http://localhost:9000`.
 
 2. Start the front-end development server (Shorty Frontend):
 
@@ -103,16 +103,10 @@ To use Shorty, follow these steps:
    npm start
    ```
 
-3. Open your web browser and visit `http://localhost:3000` to access the front-end application.
+3. Open your web browser and visit `http://localhost:5173/` to access the front-end application.
 
 4. Create a new account or log in if you already have one.
 
 5. Once logged in, you can shorten URLs and manage them through the user dashboard.
 
-```
-
-Both projects use appropriate testing frameworks for their respective technologies.
-
-
 For the back-end code and additional details, visit the [Shorty Backend Repository](https://github.com/mattempyre/shorty-back).
-```
