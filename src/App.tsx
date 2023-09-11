@@ -7,7 +7,7 @@ function App() {
   return (
     <main className="relative">
       <StickyNavbar />
-      <Toaster richColors />
+      <Toaster richColors position="bottom-center" />
       <UrlShortenerForm />
       <UrlListTable />
     </main>
