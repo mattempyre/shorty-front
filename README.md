@@ -10,8 +10,6 @@ Shorty is a simple and user-friendly web application for shortening long URLs an
   - [Installation](#installation)
 - [Usage](#usage)
 - [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
 - [Back-End Repository](#back-end-repository)
 
 ## Introduction
