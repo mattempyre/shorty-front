@@ -12,11 +12,11 @@ import {
   DialogFooter,
   Button,
   DialogHeader,
-} from '@material-tailwind/react';
-import axios from 'axios';
-import { MdCancel, MdCheckCircle, MdDelete } from 'react-icons/md';
-import { toast } from 'sonner'; // Updated import
-import isValidURL from '@/utilities/isValidUrl';
+} from '@material-tailwind/react'; // Import various components from Material Tailwind library
+import axios from 'axios'; // Import axios for making HTTP requests
+import { MdCancel, MdCheckCircle, MdDelete } from 'react-icons/md'; // Import icons from react-icons library
+import { toast } from 'sonner'; // Import toast notifications from 'sonner'
+import isValidURL from '@/utilities/isValidUrl'; // Import a utility function to validate URLs
 
 interface UrlData {
   shortUrl: string;
@@ -24,25 +24,29 @@ interface UrlData {
   clickCount: number;
 }
 
+// Function to truncate a string if it exceeds a maximum length
 const truncateString = (str: string, maxLen: number) => {
   if (str.length <= maxLen) return str;
   return str.substring(0, maxLen - 3) + '...';
 };
 
+// Define the UrlListTable component
 const UrlListTable: React.FC = () => {
   const dispatch = useDispatch();
   const urls = useSelector((state: RootState) => state.urls);
 
+  // State to store original URLs and data for deletion
   const [originalUrls, setOriginalUrls] = useState<{ [key: string]: string }>(
     {}
   );
-
   const [deleteData, setDeleteData] = useState<UrlData | null>(null);
 
+  // Function to handle clicking on a short URL link
   const handleLinkClick =
     (shortUrl: string) =>
     (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       event.preventDefault();
+      // Open the short URL in a new tab and refresh the URL list
       window.open(`http://localhost:9000/${shortUrl}`, '_blank');
       axios
         .get('http://localhost:9000/api/url/all')
@@ -54,6 +58,7 @@ const UrlListTable: React.FC = () => {
         });
     };
 
+  // Use effect to fetch initial data and update original URLs
   useEffect(() => {
     axios
       .get('http://localhost:9000/api/url/all')
@@ -70,18 +75,20 @@ const UrlListTable: React.FC = () => {
       });
   }, [dispatch, urls]);
 
+  // State for editing URLs and edited URL value
   const [editingUrl, setEditingUrl] = useState<string | null>(null);
   const [editedUrl, setEditedUrl] = useState<string>('');
 
+  // Function to handle clicking on a long URL for editing
   const handleLongUrlClick = (shortUrl: string) => {
     if (editingUrl === shortUrl) {
       return;
     }
-    // Set the clicked URL for editing
     setEditingUrl(shortUrl);
     setEditedUrl(originalUrls[shortUrl]);
   };
 
+  // Function to handle blurring from an edited long URL input
   const handleLongUrlBlur = (shortUrl: string) => {
     // Check if the edited URL has a protocol, if not, add "http://"
     let updatedEditedUrl = editedUrl;
@@ -99,14 +106,13 @@ const UrlListTable: React.FC = () => {
     }
   };
 
+  // Function to handle clicking the edit button for a long URL
   const handleEditClick = (shortUrl: string, longUrl: string) => {
     setEditingUrl(shortUrl);
     setEditedUrl(longUrl);
   };
 
-  // Access the toast function
-  // Updated usage
-
+  // Function to handle clicking the save button for editing a long URL
   const handleSaveClick = (shortUrl: string) => {
     let updatedEditedUrl = editedUrl;
 
@@ -122,7 +128,7 @@ const UrlListTable: React.FC = () => {
       axios
         .put(`http://localhost:9000/api/url/update`, {
           shortUrl,
-          newLongUrl: updatedEditedUrl, // Use the updated URL here
+          newLongUrl: updatedEditedUrl,
         })
         .then(() => {
           dispatch(updateLongUrl({ shortUrl, newLongUrl: updatedEditedUrl }));
@@ -143,11 +149,13 @@ const UrlListTable: React.FC = () => {
     }
   };
 
+  // Function to handle clicking the cancel button for editing
   const handleCancelClick = () => {
     setEditedUrl(originalUrls[editingUrl || '']);
     setEditingUrl(null);
   };
 
+  // Function to handle keyboard events in the edited URL input
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSaveClick(editingUrl || '');
@@ -156,8 +164,9 @@ const UrlListTable: React.FC = () => {
     }
   };
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete modal
-  const [urlToDelete, setUrlToDelete] = useState<string>(''); // State to store the URL to delete
+  // State for the delete modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [urlToDelete, setUrlToDelete] = useState<string>('');
 
   // Function to open the delete modal
   const openDeleteModal = (shortUrl: string) => {
@@ -177,7 +186,7 @@ const UrlListTable: React.FC = () => {
     setDeleteData(null);
   };
 
-  // Function to handle the delete action
+  // Function to handle clicking the delete button in the modal
   const handleDeleteClick = () => {
     if (deleteData) {
       // Perform the delete action here
@@ -208,7 +217,8 @@ const UrlListTable: React.FC = () => {
     }
   };
 
-  const TABLE_HEAD = ['Short URL', 'Long URL', 'Visits', 'Actions']; // Add 'Actions' to table head
+  // Define the table headers
+  const TABLE_HEAD = ['Short URL', 'Long URL', 'Visits', 'Actions'];
 
   return (
     <Card className="h-full w-full items-center bg-gray-100 rounded-none">
@@ -259,10 +269,10 @@ const UrlListTable: React.FC = () => {
                   </a>
                 </td>
                 <td
-                  className={`flex items-center ${classes} h-20 long-url-column`} // Apply a CSS class
+                  className={`flex items-center ${classes} h-20 long-url-column`}
                   onClick={() => handleLongUrlClick(shortUrl)}
                   onBlur={() => handleLongUrlBlur(shortUrl)}
-                  style={{ cursor: 'pointer', width: '400px' }} // Set a fixed width
+                  style={{ cursor: 'pointer', width: '400px' }}
                 >
                   {isEditing ? (
                     <>

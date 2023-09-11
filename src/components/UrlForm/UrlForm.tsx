@@ -3,37 +3,46 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@material-tailwind/react';
 import { FormValues } from '@/types/types';
 import isValidURL from '@/utilities/isValidUrl';
-import InputField from '../Input/InputField';
-import useUrlManager from '@/hooks/useUrlManager';
-import { toast } from 'sonner';
+import InputField from '../Input/InputField'; // Importing a custom InputField component
+import useUrlManager from '@/hooks/useUrlManager'; // Importing a custom hook for URL management
+import { toast } from 'sonner'; // Importing a toast notification library
 
+// Define a functional component named UrlForm
 const UrlForm: React.FC = () => {
+  // Destructure methods and state from the useForm hook
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty },
-    reset,
-  } = useForm<FormValues>();
+    register, // A function to register input elements
+    handleSubmit, // A function to handle form submission
+    formState: { errors, isDirty }, // Form state including errors and dirty status
+    reset, // A function to reset the form
+  } = useForm<FormValues>(); // useForm hook from react-hook-form for form handling
+
+  // Destructure methods from the custom useUrlManager hook for URL management
   const { submitUrl, error } = useUrlManager();
 
+  // Define a function to handle form submission
   const onSubmit = async (data: FormValues) => {
+    // Call the submitUrl function from the useUrlManager hook to submit URL data
     await submitUrl(data);
+    // Reset the form after submission
     reset();
   };
 
+  // Use useEffect to display an error toast if there is an error from URL submission
   useEffect(() => {
     if (error) {
       toast.error(error);
     }
   }, [error]);
 
+  // Render the URL shortening form
   return (
     <div className="max-w-screen mx-auto">
       <div
         className="bg-gradient-to-tr
-from-blue-400 
-to-cyan-500 
-via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center items-center"
+          from-blue-400 
+          to-cyan-500 
+          via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center items-center"
       >
         <div className="bg-white p-8 rounded-lg shadow-lg w-96">
           <h1 className="text-2xl font-bold mb-6 text-center">
@@ -41,6 +50,7 @@ via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center it
           </h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
+              {/* Render an InputField component for entering a long URL */}
               <InputField
                 label="Enter a long URL"
                 id="longUrl"
@@ -61,6 +71,7 @@ via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center it
               )}
             </div>
             <div>
+              {/* Render an InputField component for entering a custom short URL (optional) */}
               <InputField
                 label="Custom back-half of the short URL (optional)"
                 id="customShortUrl"
@@ -71,12 +82,13 @@ via-teal-500 animate-gradient-x min-h-screen min-w-screen flex justify-center it
                 crossOrigin={false}
               />
             </div>
+            {/* Render a submit button */}
             <Button
               type="submit"
               fullWidth
               ripple
               color="green"
-              disabled={!isDirty}
+              disabled={!isDirty} // Disable the button when the form is not dirty
             >
               Create Short URL
             </Button>
