@@ -1,7 +1,5 @@
 # Shorty - URL Shortener Web App
 
-![Shorty Logo](https://github.com/mattempyre/shorty-front/blob/main/public/logo.png)
-
 Shorty is a simple and user-friendly web application for shortening long URLs and managing them effectively.
 
 ## Table of Contents
